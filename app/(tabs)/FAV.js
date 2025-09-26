@@ -1,30 +1,50 @@
-import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
-export default function FoodScreen() {
+export default function FavScreen() {
   const router = useRouter();
+  const fadeAnim = useRef(new Animated.Value(0)).current; // initial opacity: 0
+
+  // Fade-in animation
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  // Auto navigate after 4 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      router.push('/CHEF');
+    }, 4000); // 4000ms = 4 seconds
+
+    return () => clearTimeout(timer); // cleanup
+  }, [router]);
 
   const handleNext = () => {
-    router.push('/FAV'); // Navigate to next screen
+    router.push('/CHEF'); // Manual navigation
   };
 
   const handleSkip = () => {
-    router.push('/FAV'); // Skip button
+    router.push('/CHEF'); // Skip button
   };
 
   return (
     <ImageBackground 
-      source={require('./im/food.jpg')} 
-      style={styles.background} 
+      source={require('./im/fav.webp')} 
+      style={styles.background}
       resizeMode="cover"
     >
-      <View style={styles.overlay}>
-        {/* Title at top */}
-        <Text style={styles.title}>Welcome to Food App 🍔</Text>
-       
+      <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+        {/* Titles */}
+        <Text style={styles.title}>All Your Favorites</Text>
+        <Text style={styles.subtitle}>Get your loved foods in one place</Text>
+        <Text style={styles.subtitle}>You just order, we do the rest</Text>
 
         {/* Next Button */}
         <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
@@ -35,7 +55,7 @@ export default function FoodScreen() {
         <TouchableOpacity onPress={handleSkip}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </ImageBackground>
   );
 }
@@ -55,19 +75,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: height * 0.02,
+    marginTop: 50,
   },
   subtitle: {
     fontSize: width * 0.05,
     color: '#fff',
     textAlign: 'center',
-    marginBottom: height * 0.1,
+    marginBottom: height * 0.02,
   },
   nextButton: {
     backgroundColor: '#f75c09',
     paddingVertical: height * 0.02,
     paddingHorizontal: width * 0.25,
     borderRadius: 10,
-    marginTop:100,
+    marginTop: height * 0.05,
+    marginBottom: height * 0.02,
   },
   nextText: {
     color: '#fff',
@@ -79,6 +101,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: width * 0.045,
     textDecorationLine: 'underline',
-     marginTop:10,
+    marginTop: 10,
   },
 });
